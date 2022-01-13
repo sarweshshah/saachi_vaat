@@ -2,14 +2,17 @@ import sounddevice as sd
 import soundfile as sf
 import os
 import speech_recognition as sr
-import gpio
+# import gpio
 
 
 class SoundChamber:
     def __init__(self, order_num: int = 0):
+        # Physical installation index for the instance
         self.orderNumber = order_num
         self.chamberFileLabel = str(order_num) + '.wav'
 
+        # Recording audio configurations for audio recording and speech recognition
+        # Timeout duration is number of seconds after which speech recognition is termination due to no input
         self.recording_duration = 3.2  # seconds
         self.recording_timeout = 3.2  # seconds
 
@@ -25,30 +28,32 @@ class SoundChamber:
         sound_devices = dict(enumerate(sd.query_devices()))
         print(sound_devices)
 
-    def record_audio(self, device_index: int = 0):
-        sd.default.device = device_index
-
-        indata = sd.rec(frames=int(self.recording_duration * SAMPLERATE), samplerate=self.default_samplerate, blocking=True, channels=self.default_channels, dtype=self.data_type)
-
-        sf.write(data=indata, file=os.path.join(os.getcwd(), self.chamberFileLabel), samplerate=self.default_samplerate, subtype='PCM_24')
-
     @staticmethod
     def play_an_audiofile(filepath: str = "samples/1.wav", device_index: int = 0):
 
         # Locating a file in the project directory and play  it
         rec_file_path = os.path.join(os.getcwd(), filepath)
-        audiodata, fs = sf.read(file=rec_file_path)
+        audio_data, fs = sf.read(file=rec_file_path)
 
-        sd.play(audiodata, device=device_index, samplerate=fs, blocking=True, loop=False)
+        sd.play(audio_data, device=device_index, samplerate=fs, blocking=True, loop=False)
 
-    def recognise_audio(self, savefile: bool = False):
+    def record_audio(self, device_index: int = 0):
+        sd.default.device = device_index
+
+        in_data = sd.rec(frames=int(self.recording_duration * SAMPLERATE), samplerate=self.default_samplerate,
+                         blocking=True, channels=self.default_channels, dtype=self.data_type)
+
+        sf.write(data=in_data, file=os.path.join(os.getcwd(), self.chamberFileLabel),
+                 samplerate=self.default_samplerate, subtype='PCM_24')
+
+    def recognise_audio(self, save_file: bool = False):
         with self.mic as source:
             # listen for 1 second to calibrate the energy threshold for ambient noise levels
             # recognizer.adjust_for_ambient_noise(source)
             print("Say something...")
             audio_data = self.recognizer.listen(source, timeout=5, phrase_time_limit=7.2)
 
-            if savefile is True:
+            if save_file is True:
                 with open("rec1.wav", "wb") as rec_file:
                     rec_file.write(audio_data.get_wav_data())
 
