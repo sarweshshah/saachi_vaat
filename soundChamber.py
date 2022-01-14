@@ -30,7 +30,6 @@ class SoundChamber:
 
     @staticmethod
     def play_an_audiofile(filepath: str = "samples/1.wav", device_index: int = 0):
-
         # Locating a file in the project directory and play  it
         rec_file_path = os.path.join(os.getcwd(), filepath)
         audio_data, fs = sf.read(file=rec_file_path)
@@ -69,4 +68,8 @@ class SoundChamber:
             print("Could not request results from GSR service; {0}".format(e))
 
     def transcribe_audio_file(self, filepath):
+        # https://github.com/Uberi/speech_recognition#readme
+        pass
+
+    def show_led_lights(self):
         pass
